@@ -1,0 +1,257 @@
+[
+  {
+    "file": "01_cad_tong_the.png",
+    "title": "Tổng thể hộp giám sát gắn trên khay",
+    "source": "Fusion, 11/11/2026",
+    "note": "Kích thước, dây và cách gá sẽ điều chỉnh theo hộp, khay và linh kiện mua thật. Các board là hình khối đại diện.",
+    "section": "Thiết kế cơ khí",
+    "original_sha256": "54c6e4094535b485158560d0a2d4e2ac8ee7908ff3c967ccf7bc09ef56e90072",
+    "annotated_sha256": "1f8063e66debbfa9e272ce079324eb067c97e713cbc18cc536d17dcba7a2236b",
+    "original_size": [
+      3840,
+      1384
+    ],
+    "annotated_size": [
+      2400,
+      1420
+    ]
+  },
+  {
+    "file": "02_cad_ben_ngoai.png",
+    "title": "Bố trí bên ngoài hộp thiết bị",
+    "source": "Fusion, 11/11/2026",
+    "note": "Kích thước, dây và cách gá sẽ điều chỉnh theo hộp, khay và linh kiện mua thật. Các board là hình khối đại diện.",
+    "section": "Thiết kế cơ khí",
+    "original_sha256": "f02555baa65153bf40b114c7b97bc8c1d3db2da8ea282bdbc5fed228f520f47d",
+    "annotated_sha256": "08397d2c6f3bc828b043a72986e4522337c6f8ef05dbc547d65eada04a121cc8",
+    "original_size": [
+      3840,
+      1384
+    ],
+    "annotated_size": [
+      2400,
+      1420
+    ]
+  },
+  {
+    "file": "03_cad_ben_trong.png",
+    "title": "Bố trí linh kiện và dây bên trong",
+    "source": "Fusion, 11/11/2026",
+    "note": "Kích thước, dây và cách gá sẽ điều chỉnh theo hộp, khay và linh kiện mua thật. Các board là hình khối đại diện.",
+    "section": "Thiết kế cơ khí",
+    "original_sha256": "24df1658ae2afbc2f5145f408b6d8d256513de7b732e4025a1646dd76df4fdbe",
+    "annotated_sha256": "e869be7405b70f57496ae40a323726b7962f2645264d1791ba253aebf8d2ece0",
+    "original_size": [
+      3840,
+      1384
+    ],
+    "annotated_size": [
+      2400,
+      1420
+    ]
+  },
+  {
+    "file": "04_cad_mat_tren.png",
+    "title": "Mặt bằng bố trí linh kiện",
+    "source": "Fusion, 11/11/2026",
+    "note": "Kích thước, dây và cách gá sẽ điều chỉnh theo hộp, khay và linh kiện mua thật. Các board là hình khối đại diện.",
+    "section": "Thiết kế cơ khí",
+    "original_sha256": "0e071ab9ad2fefeeda760731d598c757d1875a57f2cbf6ee408b731d2c193cb2",
+    "annotated_sha256": "0d2d280d660fec3165c4fd214a8ecdc1b5d7b540bbe541311b17908dcd9a6cfc",
+    "original_size": [
+      3840,
+      1384
+    ],
+    "annotated_size": [
+      2400,
+      1420
+    ]
+  },
+  {
+    "file": "05_cad_led_dien_tro.png",
+    "title": "Chi tiết LED báo chế độ và điện trở",
+    "source": "Fusion, 11/11/2026",
+    "note": "Kích thước, dây và cách gá sẽ điều chỉnh theo hộp, khay và linh kiện mua thật. Các board là hình khối đại diện.",
+    "section": "Thiết kế cơ khí",
+    "original_sha256": "ea236aca2be5d7187038e0b83469ef8264e880262c4bccdc316c749d9cf97064",
+    "annotated_sha256": "91649dccc7596318fb0249757b4b52669be3fe81f24e36478f38941777e11cfe",
+    "original_size": [
+      3840,
+      1384
+    ],
+    "annotated_size": [
+      2400,
+      1420
+    ]
+  },
+  {
+    "file": "06_drawing_hop.png",
+    "title": "Drawing tham khảo: thân hộp, nắp và LED",
+    "source": "Nguồn: Drawing liên kết với CAD trong Autodesk Fusion • 11/11/2026.",
+    "note": "Khổ A3; hình chiếu trên, trước, phải 1:2; phối cảnh 1:2,5. Kích thước mm là dự kiến, cần chỉnh theo linh kiện mua thật.",
+    "section": "Bản vẽ tham khảo cơ khí",
+    "original_sha256": "a74f2c4c3e64170c0a4b0c112780265b0f88feda6400bbb3ea1f205d1b38d8a8",
+    "annotated_sha256": "0bc8d5d311e873d4c39a1c5f30b1a467cba875e68ee10a91d505bdc84d47b9d8",
+    "original_size": [
+      4963,
+      3509
+    ],
+    "annotated_size": [
+      4963,
+      4212
+    ]
+  },
+  {
+    "file": "07_so_do_he_thong.png",
+    "title": "Kiến trúc hệ thống và hai luồng hoạt động",
+    "source": "Nguồn: mã firmware, backend và frontend hiện tại • 11/11/2026.",
+    "note": "Sơ đồ nguyên lý; ACK dùng telemetry, không có topic ACK riêng. Website không điều chỉnh ngưỡng.",
+    "section": "Kiến trúc và luồng hoạt động",
+    "original_sha256": "1144b8edf26d3601e7e2ceba02916beda7002950f463ba6e9da07db0b834a47d",
+    "annotated_sha256": "b923c75aebd1677bffbd8ab8fc876d9c57a2fdfe323e585d2a58f192eb3a2cc3",
+    "original_size": [
+      2400,
+      1260
+    ],
+    "annotated_size": [
+      2400,
+      1600
+    ]
+  },
+  {
+    "file": "08_so_do_dau_noi.png",
+    "title": "Sơ đồ đấu nối chức năng",
+    "source": "Nguồn: diagram.json và cấu hình GPIO firmware • 11/11/2026.",
+    "note": "Sơ đồ vẽ lại từ cấu hình mô phỏng, không phải ảnh mạch đã lắp. Buzzer thật cần chọn kiểu và mạch lái theo linh kiện.",
+    "section": "Thiết kế phần cứng",
+    "original_sha256": "d23b8183663a4a7e8c72a150be9ed9c410cf75c12afaa72d522385fa32d7f6e9",
+    "annotated_sha256": "aafc283dce5da7e101117b7d0d329465885ac263d7dd4a18c89fd11e6ec3123f",
+    "original_size": [
+      2400,
+      1390
+    ],
+    "annotated_size": [
+      2400,
+      1730
+    ]
+  },
+  {
+    "file": "09_luong_firmware.png",
+    "title": "Các bước xử lý firmware và nhánh ngoại lệ",
+    "source": "Nguồn: firmware/tilt_tray.cpp và các lớp hỗ trợ • 11/11/2026.",
+    "note": "Các chu kỳ là cấu hình thiết kế, chưa phải độ trễ đầu-cuối đo thực nghiệm. CAL lấy mẫu khoảng 3 giây khi khay nằm ngang.",
+    "section": "Thuật toán và luồng hoạt động",
+    "original_sha256": "72cd6e7bdd6d316f7a0238bad631a70f9c86b38618e9246c6c8e263fd60f423c",
+    "annotated_sha256": "5d5dfbbc73ede992ed0cac41e3252562ccce1d8ac1759adfd3f9d1f85394fca7",
+    "original_size": [
+      2400,
+      1530
+    ],
+    "annotated_size": [
+      2400,
+      1870
+    ]
+  },
+  {
+    "file": "10_luong_lenh_web.png",
+    "title": "Luồng bật / tạm dừng và xác nhận thực hiện",
+    "source": "Nguồn: backend/control.mjs và firmware/monitoring_control.h • 11/11/2026.",
+    "note": "Lệnh QoS 0, không retain; không phát lại lệnh cũ sau khi kết nối lại. ACK nằm trong telemetry.",
+    "section": "Luồng điều khiển từ web",
+    "original_sha256": "9dda26a61de280d83771ea4856d53826af2f3b225b81264471bc1c56dcae4765",
+    "annotated_sha256": "9b7deed7925e35720bbcc8fab3d2a6f0cb4aba2f203cca6775d4b96be5e375b9",
+    "original_size": [
+      2400,
+      1470
+    ],
+    "annotated_size": [
+      2400,
+      1810
+    ]
+  },
+  {
+    "file": "11_nguyen_ly_goc_xyz.png",
+    "title": "Nguyên lý tính góc nghiêng tổng từ gia tốc XYZ",
+    "source": "Nguồn: firmware/static_tilt.h • Sơ đồ nguyên lý, 11/11/2026.",
+    "note": "Góc không dấu 0–180° so với tư thế CAL. Hình vector chỉ giải thích thuật toán; không phải dữ liệu thực nghiệm.",
+    "section": "Cơ sở vật lý",
+    "original_sha256": "c94540ed9bd4d5adcadd6d698b781875423a94bbc0972d921b5639df7c577b6b",
+    "annotated_sha256": "bc5a7541deb64b4a50335af4c7a4bc5f4100ce68fe8875e995ee3e364f3512d8",
+    "original_size": [
+      2400,
+      1180
+    ],
+    "annotated_size": [
+      2400,
+      1520
+    ]
+  },
+  {
+    "file": "12_hysteresis_dual_tone.png",
+    "title": "Ngưỡng bật / tắt và âm thanh cảnh báo",
+    "source": "Nguồn: logic firmware và buzzer_alert.h • 11/11/2026.",
+    "note": "Đây là bảng nguyên lý / kết quả mong đợi; không thay thế ảnh, số đo hay ghi âm nghiệm thu thực tế.",
+    "section": "Thuật toán cảnh báo và kịch bản kiểm thử",
+    "original_sha256": "98530f7e57fe22af8038a218cb17c0831deca889f9468fb354da55f8250a2516",
+    "annotated_sha256": "3230527cdae42ef92137f61988d7d51873e5c8ebafe2feedfd701049860b751e",
+    "original_size": [
+      2400,
+      1100
+    ],
+    "annotated_size": [
+      2400,
+      1440
+    ]
+  },
+  {
+    "file": "13_web_paused.png",
+    "title": "Web sau khi ESP32 xác nhận tạm dừng",
+    "source": "Ảnh kiểm thử Wokwi, 10/11/2026",
+    "note": "Góc được ẩn; LED chế độ báo tắt. Heartbeat vẫn hoạt động, không phải trạng thái mất dữ liệu.",
+    "section": "Kết quả mô phỏng hai luồng",
+    "original_sha256": "bd3ec5002e5ebbf90f364a28adcfe4af79c02cdfa121299d23f05481f787ffda",
+    "annotated_sha256": "2c489a30acc38b57c0232e7e0aa58c7bc90aca08de5ef98312a1db009164ec44",
+    "original_size": [
+      1280,
+      1251
+    ],
+    "annotated_size": [
+      2100,
+      1630
+    ]
+  },
+  {
+    "file": "14_web_resumed.png",
+    "title": "Web sau khi ESP32 xác nhận bật lại",
+    "source": "Ảnh kiểm thử Wokwi, 10/11/2026",
+    "note": "Góc mới gần 0°; LED chế độ báo bật. Đây là ảnh kiểm thử mô phỏng, không phải sản phẩm thật.",
+    "section": "Kết quả mô phỏng hai luồng",
+    "original_sha256": "de3e0bc8cc3c6745bbd90dc9e17aea822675cfc5b1f0d94b9ea553e977581d89",
+    "annotated_sha256": "a7351359b42dfd0971379200be1986c7c00c279a2b324cab129bb493543438d4",
+    "original_size": [
+      1280,
+      1251
+    ],
+    "annotated_size": [
+      2100,
+      1630
+    ]
+  },
+  {
+    "file": "15_bang_trang_thai.png",
+    "title": "Các trạng thái và ý nghĩa hiển thị",
+    "source": "Nguồn: firmware, backend/state.mjs và giao diện React • 11/11/2026.",
+    "note": "Bảng mô tả hành vi thiết kế. Mất dữ liệu ở web không tự tắt cảnh báo cục bộ; alarmOn chỉ là cảnh báo nghiêng.",
+    "section": "Trạng thái hệ thống và xử lý lỗi",
+    "original_sha256": "5a4f77aa28e31cb9b7aebf265a82a2951305af368c37067953bfb0585740dfdd",
+    "annotated_sha256": "b233aa47e9e6dc301b1a8e70b282f877bab22f6fd3adf13b8b241f3e63429e1f",
+    "original_size": [
+      2400,
+      1280
+    ],
+    "annotated_size": [
+      2400,
+      1620
+    ]
+  }
+]

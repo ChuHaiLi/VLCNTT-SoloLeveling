@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "author": "24C11 - Tilt Tray",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "wokwi-esp32-devkit-v1", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    {
+      "type": "wokwi-mpu6050", "id": "mpu", "top": -10, "left": 230,
+      "attrs": { "accelX": "0", "accelY": "0", "accelZ": "1" }
+    },
+    { "type": "wokwi-buzzer", "id": "buzzer", "top": 180, "left": 230, "attrs": { "volume": "0.3" } },
+    { "type": "wokwi-led", "id": "modeLed", "top": 280, "left": 230, "attrs": { "color": "green" } },
+    { "type": "wokwi-resistor", "id": "modeResistor", "top": 265, "left": 110, "attrs": { "value": "330" } }
+  ],
+  "connections": [
+    [ "esp:3V3", "mpu:VCC", "red", [] ],
+    [ "esp:GND.1", "mpu:GND", "black", [] ],
+    [ "esp:D21", "mpu:SDA", "green", [] ],
+    [ "esp:D22", "mpu:SCL", "blue", [] ],
+    [ "mpu:AD0", "mpu:GND", "black", [] ],
+    [ "esp:D25", "buzzer:2", "orange", [] ],
+    [ "esp:GND.2", "buzzer:1", "black", [] ],
+    [ "esp:D26", "modeResistor:1", "green", [] ],
+    [ "modeResistor:2", "modeLed:A", "green", [] ],
+    [ "modeLed:C", "esp:GND.2", "black", [] ],
+    [ "esp:TX0", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX0", "$serialMonitor:TX", "", [] ]
+  ],
+  "serialMonitor": { "display": "always", "newline": "lf" }
+}
+

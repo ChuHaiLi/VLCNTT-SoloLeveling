@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demo giả lập — Cảnh báo độ nghiêng</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #152a38; background: #f0f5f6; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 28px 18px; }
+    main { max-width: 1050px; margin: 0 auto; }
+    .notice { background: #fff2d9; color: #7a4b00; border-radius: 12px; padding: 15px 20px; font-weight: 650; }
+    h1 { margin-bottom: 6px; font-size: clamp(27px, 4vw, 39px); }
+    .sub { margin: 0 0 24px; color: #5b7380; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .panel { background: white; padding: 24px; border-radius: 18px; box-shadow: 0 5px 24px #13303a0c; }
+    .wide { grid-column: 1 / -1; }
+    .small { color: #627581; font-size: 15px; }
+    .angle { font-size: clamp(55px, 10vw, 92px); margin: 10px 0; font-weight: 730; color: #117b87; }
+    .pill { display: inline-block; border-radius: 999px; padding: 10px 15px; background: #e0f3ec; color: #12694e; font-weight: 650; }
+    .pill.warn { background: #ffe1e2; color: #a22a38; }
+    .pill.gray { background: #e6eaed; color: #465864; }
+    .meter { height: 14px; background: #dae5e9; border-radius: 999px; overflow: hidden; margin: 19px 0; }
+    .meter span { height: 100%; display: block; background: #117b87; width: 0; transition: width 0.2s; }
+    .meter .warn { background: #c95160; }
+    input[type="range"] { width: 100%; accent-color: #117b87; }
+    .row { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin: 12px 0; }
+    .row label { display: flex; align-items: center; gap: 9px; }
+    button { border: 0; border-radius: 10px; padding: 11px 16px; font-weight: 650; cursor: pointer; background: #117b87; color: white; }
+    button:hover { filter: brightness(1.1); }
+    .tip { color: #526875; font-size: 15px; line-height: 1.6; }
+    .facts { display: grid; gap: 10px; }
+    .facts div { display: flex; justify-content: space-between; border-bottom: 1px solid #e7edef; padding-bottom: 7px; }
+    footer { margin-top: 22px; color: #526875; font-size: 14px; }
+    @media(max-width: 720px) { .grid { grid-template-columns: 1fr; } .wide { grid-column: auto; } }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="notice">DEMO GIẢ LẬP TRÊN TRÌNH DUYỆT — chưa đọc MPU6050, chưa kết nối ESP32, MQTT hoặc buzzer thật.</p>
+    <h1>Thiết bị cảnh báo độ nghiêng</h1>
+    <p class="sub">Nguyên mẫu giao diện để luyện trình bày và thử logic trước khi mua linh kiện.</p>
+    <section class="grid">
+      <div class="panel">
+        <div class="small">Góc nghiêng của khay (giả lập)</div>
+        <div class="angle" id="angleText">0.0°</div>
+        <div class="meter"><span id="bar"></span></div>
+        <div class="row"><span>−30°</span><strong>0° nằm ngang</strong><span>+30°</span></div>
+        <input id="angle" type="range" min="-30" max="30" step="1" value="0" aria-label="Góc nghiêng giả lập">
+      </div>
+      <div class="panel">
+        <div class="small">Cảnh báo thiết bị giả lập</div>
+        <h2 id="localStatus" class="pill">An toàn • Còi tắt</h2>
+        <div class="facts">
+          <div><span>Ngưỡng bật</span><strong>15° (Ngưỡng bật)</strong></div>
+          <div><span>Ngưỡng tắt</span><strong>12° (Ngưỡng tắt)</strong></div>
+          <div><span>Hiệu chuẩn (mốc)</span><strong id="zero">0°</strong></div>
+          <div><span>Cảm biến</span><strong id="sensor">OK (giả lập)</strong></div>
+        </div>
+        <p class="tip">Còi trong mô phỏng là chữ trạng thái; trang này không phát âm thanh.</p>
+      </div>
+      <div class="panel">
+        <h2>Thao tác thử nghiệm</h2>
+        <div class="row"><label><input id="pause" type="checkbox"> Ngắt truyền dữ liệu lên web</label></div>
+        <div class="row"><label><input id="fault" type="checkbox"> Giả lập lỗi cảm biến</label></div>
+        <div class="row"><button id="cal">Hiệu chuẩn 0° tại góc hiện tại</button></div>
+        <p class="tip">Để mô phỏng đúng quy trình, chỉ bấm hiệu chuẩn khi thanh trượt đang ở vị trí 0°. Trong thiết bị thật sẽ nhập lệnh CAL qua USB.</p>
+      </div>
+      <div class="panel">
+        <h2>Website theo dõi (giả lập)</h2>
+        <h3 id="webStatus" class="pill">An toàn</h3>
+        <div class="facts">
+          <div><span>Góc nhận cuối cùng</span><strong id="remoteAngle">0.0°</strong></div>
+          <div><span>Còi phía thiết bị</span><strong id="remoteBuzzer">Tắt</strong></div>
+          <div><span>Thời điểm nhận dữ liệu</span><strong id="lastSeen">—</strong></div>
+          <div><span>Trạng thái MQTT (mô phỏng)</span><strong id="net">Có bản tin</strong></div>
+        </div>
+        <p class="tip">Sau khi tích “Ngắt truyền dữ liệu”, website sẽ báo dữ liệu cũ sau 5 giây. Trạng thái còi trên thiết bị giả lập vẫn thay đổi theo góc.</p>
+      </div>
+      <div class="panel wide">
+        <h2>Kịch bản nhanh để trình bày</h2>
+        <p class="tip">1. Đặt 0°, chọn 10° → an toàn. 2. Chọn 16° → còi bật. 3. Hạ về 14° → còi vẫn bật. 4. Hạ 11° → còi tắt. 5. Tích ngắt truyền, chờ hơn 5 giây → website báo cũ, còn cảnh báo tại chỗ vẫn hoạt động. 6. Bật giả lập lỗi cảm biến → không coi lỗi là 0°.</p>
+      </div>
+    </section>
+    <footer>Đây là giao diện giảng giải tính năng trước giai đoạn thử nghiệm với thiết bị thật. Các số đo không phải kết quả thực nghiệm.</footer>
+  </main>
+  <script>
+    const THRESHOLD_ON = 15;
+    const THRESHOLD_OFF = 12;
+    const STALE_MS = 5000;
+    let offset = 0;
+    let alarm = false;
+    let lastReceived = 0;
+    let cached = null;
+    const $ = (name) => document.getElementById(name);
+
+    function setStatus(element, message, kind)
+    {
+      element.textContent = message;
+      element.className = `pill ${kind}`;
+    }
+
+    function updateLocal()
+    {
+      const sensorOk = !$('fault').checked;
+      const angle = Number($('angle').value) - offset;
+      $('angleText').textContent = `${angle.toFixed(1)}°`;
+      $('bar').style.width = `${Math.min(100, Math.abs(angle) / 30 * 100)}%`;
+      $('sensor').textContent = sensorOk ? 'OK (giả lập)' : 'LỖI (giả lập)';
+      if (!sensorOk)
+      {
+        setStatus($('localStatus'), 'Lỗi cảm biến • Không có góc hợp lệ', 'warn');
+        return { angle: null, alarmOn: false, sensorOk: false };
+      }
+      if (!alarm && Math.abs(angle) >= THRESHOLD_ON)
+      {
+        alarm = true;
+      }
+      else if (alarm && Math.abs(angle) <= THRESHOLD_OFF)
+      {
+        alarm = false;
+      }
+      setStatus($('localStatus'), alarm ? 'Vượt ngưỡng • Còi bật' : 'An toàn • Còi tắt', alarm ? 'warn' : '');
+      return { angle, alarmOn: alarm, sensorOk: true };
+    }
+
+    function updateRemote()
+    {
+      const data = updateLocal();
+      const now = Date.now();
+      if (!$('pause').checked)
+      {
+        cached = data;
+        lastReceived = now;
+        $('lastSeen').textContent = new Date(now).toLocaleTimeString('vi-VN');
+      }
+      $('net').textContent = $('pause').checked ? 'Dừng gửi bản tin' : 'Có bản tin';
+      if (!cached || now - lastReceived > STALE_MS)
+      {
+        setStatus($('webStatus'), 'Dữ liệu cũ / Mất liên lạc', 'gray');
+        return;
+      }
+      $('remoteAngle').textContent = cached.sensorOk ? `${cached.angle.toFixed(1)}°` : 'Không hợp lệ';
+      $('remoteBuzzer').textContent = cached.alarmOn ? 'Bật' : 'Tắt';
+      setStatus($('webStatus'), !cached.sensorOk ? 'Lỗi cảm biến' : (cached.alarmOn ? 'Vượt ngưỡng' : 'An toàn'), !cached.sensorOk || cached.alarmOn ? 'warn' : '');
+    }
+
+    $('cal').addEventListener('click', () =>
+    {
+      if ($('fault').checked)
+      {
+        alert('Không hiệu chuẩn khi cảm biến đang lỗi.');
+        return;
+      }
+      offset = Number($('angle').value);
+      $('zero').textContent = `${offset}°`;
+      alarm = false;
+      updateRemote();
+    });
+    $('angle').addEventListener('input', updateRemote);
+    $('pause').addEventListener('change', updateRemote);
+    $('fault').addEventListener('change', updateRemote);
+    updateRemote();
+    setInterval(updateRemote, 500);
+  </script>
+</body>
+</html>
