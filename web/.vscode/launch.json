@@ -12,9 +12,9 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug",
-            "executable": "C:/Users/PC/OneDrive/Desktop/Visual Studio Code/HCMUS/VLCNTT/Do_An/MA_NGUON_VA_DEMO_KHAY_NGHIENG/san_pham_phan_mem/.pio/build/wokwi/firmware.elf",
+            "executable": "${workspaceFolder}/.pio/build/wokwi/firmware.elf",
             "projectEnvName": "wokwi",
-            "toolchainBinDir": "C:/Users/PC/.platformio/packages/toolchain-xtensa-esp32/bin",
+            "toolchainBinDir": "C:/Users/hailc/.platformio/packages/toolchain-xtensa-esp32/bin",
             "internalConsoleOptions": "openOnSessionStart",
             "preLaunchTask": {
                 "type": "PlatformIO",
@@ -25,18 +25,18 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (skip Pre-Debug)",
-            "executable": "C:/Users/PC/OneDrive/Desktop/Visual Studio Code/HCMUS/VLCNTT/Do_An/MA_NGUON_VA_DEMO_KHAY_NGHIENG/san_pham_phan_mem/.pio/build/wokwi/firmware.elf",
+            "executable": "${workspaceFolder}/.pio/build/wokwi/firmware.elf",
             "projectEnvName": "wokwi",
-            "toolchainBinDir": "C:/Users/PC/.platformio/packages/toolchain-xtensa-esp32/bin",
+            "toolchainBinDir": "C:/Users/hailc/.platformio/packages/toolchain-xtensa-esp32/bin",
             "internalConsoleOptions": "openOnSessionStart"
         },
         {
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (without uploading)",
-            "executable": "C:/Users/PC/OneDrive/Desktop/Visual Studio Code/HCMUS/VLCNTT/Do_An/MA_NGUON_VA_DEMO_KHAY_NGHIENG/san_pham_phan_mem/.pio/build/wokwi/firmware.elf",
+            "executable": "${workspaceFolder}/.pio/build/wokwi/firmware.elf",
             "projectEnvName": "wokwi",
-            "toolchainBinDir": "C:/Users/PC/.platformio/packages/toolchain-xtensa-esp32/bin",
+            "toolchainBinDir": "C:/Users/hailc/.platformio/packages/toolchain-xtensa-esp32/bin",
             "internalConsoleOptions": "openOnSessionStart",
             "loadMode": "manual"
         }

@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import { setTimeout as sleep } from "node:timers/promises";
 import mqtt from "mqtt";
 
-const bundledBroker = fileURLToPath(new URL("../.tools/mosquitto/mosquitto.exe", import.meta.url));
+const bundledBroker = fileURLToPath(new URL("../../.tools/mosquitto/mosquitto.exe", import.meta.url));
 const brokerExecutable = process.env.MOSQUITTO_BIN || (existsSync(bundledBroker) ? bundledBroker : "mosquitto");
 const brokerPort = 19883;
 const apiPort = 13000;
