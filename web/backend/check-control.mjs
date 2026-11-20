@@ -21,6 +21,7 @@ let timer;
 let logs = "";
 let enabled = true;
 let sensorOk = true;
+let alertSettings = { alertsEnabled: true, thresholdOn: 15, thresholdOff: 12 };
 let respond = true;
 let lastCommandId = 0;
 let seq = 0;
@@ -70,14 +71,16 @@ async function status()
     return (await fetch(`${url}/api/status`, { signal: AbortSignal.timeout(1000) })).json();
 }
 
-async function command(value)
+async function post(path, body)
 {
-    const response = await fetch(`${url}/api/monitoring`, {
+    const response = await fetch(`${url}/api/${path}`, {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ enabled: value }), signal: AbortSignal.timeout(6500),
+        body: JSON.stringify(body), signal: AbortSignal.timeout(6500),
     });
     return { code: response.status, body: await response.json() };
 }
+
+const command = (enabled) => post("monitoring", { enabled });
 
 function publish()
 {
@@ -88,8 +91,8 @@ function publish()
     peer.publish("tilt-tray/telemetry", JSON.stringify({
         deviceId, bootId: 123, seq: seq++, sensorOk,
         angleDeg: enabled && sensorOk ? 16 : null,
-        alarmOn: enabled && sensorOk,
-        thresholdOn: 15, thresholdOff: 12,
+        alarmOn: enabled && sensorOk && alertSettings.alertsEnabled && 16 >= alertSettings.thresholdOn,
+        ...alertSettings,
         monitoringEnabled: enabled, modeLedOn: enabled, lastCommandId,
     }), { qos: 0, retain: false });
 }
@@ -131,14 +134,24 @@ try
     peer.on("message", (_topic, payload, packet) =>
     {
         const text = payload.toString();
-        const match = /^SET_MONITORING 123 (\d+) ([01])$/.exec(text);
-        assert.ok(match, text);
+        const monitoring = /^SET_MONITORING 123 (\d+) ([01])$/.exec(text);
+        const settings = /^SET_ALERT_SETTINGS 123 (\d+) ([01]) (\d+) (\d+)$/.exec(text);
+        assert.ok(monitoring || settings, text);
         assert.equal(packet.retain, false);
         received.push(text);
         if (respond)
         {
-            lastCommandId = Number(match[1]);
-            enabled = match[2] === "1";
+            if (settings)
+            {
+                const [, id, alerts, on, off] = settings;
+                lastCommandId = Number(id);
+                alertSettings = { alertsEnabled: alerts === "1", thresholdOn: Number(on), thresholdOff: Number(off) };
+            }
+            else
+            {
+                lastCommandId = Number(monitoring[1]);
+                enabled = monitoring[2] === "1";
+            }
             publish();
         }
     });
@@ -182,7 +195,30 @@ try
     assert.equal(received.length, receivedBeforeReconnect, "No stale control command may replay after reconnect");
     assert.equal((await command(false)).code, 200);
     assert.equal((await command(true)).code, 200);
-    console.log("PASS: real Mosquitto + API control, exact ACK, pause heartbeat >5s, resume, fault, timeout, broker stop/restart, no replay");
+
+    const muted = { alertsEnabled: false, thresholdOn: 14, thresholdOff: 9 };
+    assert.equal((await post("alert-settings", { ...muted, thresholdOff: 14 })).code, 400);
+    const saved = await post("alert-settings", muted);
+    assert.equal(saved.code, 200);
+    assert.equal(saved.body.confirmed, true);
+    const angleOnly = await status();
+    assert.equal(angleOnly.status, "angle-only");
+    assert.equal(angleOnly.reading.angleDeg, 16);
+    assert.equal(angleOnly.reading.alarmOn, false);
+    assert.equal(angleOnly.reading.modeLedOn, true);
+    assert.deepEqual(angleOnly.thresholds, { on: 14, off: 9 });
+    sensorOk = false;
+    publish();
+    await waitFor(async () => (await status()).status === "sensor-error", "fault in angle-only mode");
+    assert.equal((await status()).reading.angleDeg, null);
+    assert.equal((await command(false)).code, 200);
+    assert.equal((await status()).status, "paused");
+    sensorOk = true;
+    assert.equal((await command(true)).code, 200);
+    assert.equal((await status()).status, "angle-only");
+    assert.equal((await post("alert-settings", { ...muted, alertsEnabled: true })).code, 200);
+    assert.equal((await status()).status, "alarm");
+    console.log("PASS: real Mosquitto + API control, alert settings, angle only, exact ACK, pause heartbeat >5s, resume, fault, timeout, broker stop/restart, no replay");
     console.log("ESP32 peer was emulated; physical LED and Wokwi firmware still require simulator verification.");
 }
 catch (error)

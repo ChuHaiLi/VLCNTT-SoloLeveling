@@ -6,7 +6,7 @@
 
 bool parse(const char *text, MonitoringCommand &command, uint32_t bootId = 123)
 {
-    return parseMonitoringCommand(reinterpret_cast<const uint8_t *>(text), strlen(text), bootId, command);
+    return parseControlCommand(reinterpret_cast<const uint8_t *>(text), strlen(text), bootId, command);
 }
 
 int main()
@@ -40,7 +40,26 @@ int main()
     }
     assert(parse("SET_MONITORING 4294967295 4294967295 1", command, UINT32_MAX));
     const uint8_t embeddedNull[] = "SET_MONITORING 123 12 0\0junk";
-    assert(!parseMonitoringCommand(embeddedNull, sizeof(embeddedNull) - 1, 123, command));
-    puts("PASS: monitoring command validation, boot guard, pause/resume, duplicate protection, alarm silence");
+    assert(!parseControlCommand(embeddedNull, sizeof(embeddedNull) - 1, 123, command));
+
+    assert(parse("SET_ALERT_SETTINGS 123 12 1 90 0", command));
+    assert(command.updatesSettings && command.settings.valid());
+    assert(command.settings.thresholdOn == 90 && command.settings.thresholdOff == 0);
+    assert(state.accepts(command, 123) && !state.apply(command, 123));
+    assert(parse("SET_ALERT_SETTINGS 123 13 1 20 16", command));
+    assert(!command.settings.nextAlarm(false, 19.99f));
+    assert(command.settings.nextAlarm(false, 20.0f));
+    assert(command.settings.nextAlarm(true, 16.01f));
+    assert(!command.settings.nextAlarm(true, 16.0f));
+    assert(parse("SET_ALERT_SETTINGS 123 14 0 20 16", command));
+    assert(!command.settings.nextAlarm(true, 90.0f));
+    assert(!parse("SET_ALERT_SETTINGS 123 15 1 91 0", command));
+    assert(!parse("SET_ALERT_SETTINGS 123 15 1 20 20", command));
+    assert(!parse("SET_ALERT_SETTINGS 123 15 1 20 -1", command));
+    assert(!parse("SET_ALERT_SETTINGS 123 15 1 20.5 16", command));
+    assert(!parse("SET_ALERT_SETTINGS 123 15 2 20 16", command));
+    assert(!parse("SET_ALERT_SETTINGS 124 15 1 20 16", command));
+    assert(!parse("SET_ALERT_SETTINGS 123 15 1 20 16 ", command));
+    puts("PASS: monitoring controls, alert settings, hysteresis, and angle-only mode");
     return 0;
 }

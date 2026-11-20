@@ -239,7 +239,15 @@ flowchart LR
 Luồng thứ nhất đo và gửi số liệu. Luồng thứ hai cho phép người dùng chọn
 **Bắt đầu giám sát** hoặc **Tạm dừng giám sát** trên web; lệnh tới ESP32 làm
 đổi chế độ đo và điều khiển một LED riêng, không dùng chung buzzer cảnh báo.
-Website không điều chỉnh các ngưỡng 15°/12°.
+Trong **Cài đặt cảnh báo**, chọn **Đo và cảnh báo** hoặc **Chỉ gửi góc** rồi bấm
+**Lưu cài đặt**. Có thể đổi riêng ngưỡng bật và ngưỡng tắt. Mỗi ngưỡng phải là
+số nguyên từ 0° đến 90° và ngưỡng tắt phải nhỏ hơn ngưỡng bật. Mặc định là
+15°/12° và bật cảnh báo. ESP32 lưu cả ba giá trị trong bộ nhớ NVS.
+
+Ở chế độ **Chỉ gửi góc**, ESP32 vẫn đo, gửi góc và giữ LED giám sát sáng.
+Còi im cả khi góc vượt ngưỡng hoặc cảm biến lỗi. Web vẫn hiển thị lỗi cảm biến.
+**Tạm dừng giám sát** ngừng đo và tắt LED. Khi tiếp tục, ESP32 dùng chế độ
+cảnh báo đã lưu.
 
 | Chế độ được ESP32 xác nhận | Lấy mẫu MPU6050 | LED xanh GPIO26 | Còi | Góc trên web |
 |---|---|---|---|---|
@@ -266,6 +274,11 @@ LED thể hiện chế độ, không phải đèn xác nhận cảm biến đang
 - Topic lệnh là `tilt-tray/command/<deviceId>`, ví dụ
   `tilt-tray/command/khay-01-WOKWI`. Payload dạng văn bản:
   `SET_MONITORING <bootId> <requestId> <0|1>`; 0 là tạm dừng, 1 là bắt đầu.
+- Với cài đặt cảnh báo, cùng topic nhận `SET_ALERT_SETTINGS <bootId> <requestId> <0|1> <on> <off>`.
+  Giá trị 0 là chỉ gửi góc, 1 là đo và cảnh báo. ESP32 lưu NVS trước khi áp dụng
+  và trả về ngưỡng đã dùng, `alertsEnabled` và `lastCommandId` trong telemetry.
+  Khi lưu thất bại, telemetry trả `settingsSaveFailed:true` cùng mã yêu cầu,
+  backend trả HTTP 500 và ESP32 tiếp tục dùng cài đặt trước đó.
 - Backend chọn đúng `deviceId` và `bootId` từ bản tin mới nhất. Lệnh không retain,
   dùng QoS 0; không xếp hàng lệnh lúc mất mạng. ESP32 dùng clean session và kiểm
   tra bootId, requestId, giá trị 0/1 trước khi chuyển lệnh từ task MQTT sang loop.
@@ -273,6 +286,8 @@ LED thể hiện chế độ, không phải đèn xác nhận cảm biến đang
   qua telemetry. `modeLedOn` xác nhận mức GPIO điều khiển; không phải cảm biến
   quang để phát hiện LED hỏng hoặc đứt dây.
 - `POST /api/monitoring` nhận JSON `{"enabled":true}` hoặc `{"enabled":false}`.
+- `POST /api/alert-settings` nhận JSON như `{"alertsEnabled":false,"thresholdOn":20,"thresholdOff":16}`.
+  Nạp firmware hỗ trợ cài đặt cảnh báo để dùng API này.
   API chỉ trả `confirmed:true` sau khi nhận telemetry khớp requestId, bootId,
   chế độ và LED. Khi chờ, web khóa nút để tránh gửi lệnh trùng.
 - Chưa có dữ liệu mới hoặc mất broker: HTTP 503; nguồn chỉ hỗ trợ hiển thị hoặc

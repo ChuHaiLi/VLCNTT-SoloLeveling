@@ -28,8 +28,6 @@ constexpr uint8_t BUZZER_PIN = 25;
 constexpr uint8_t BUZZER_CHANNEL = 0;
 constexpr uint8_t MODE_LED_PIN = 26;
 
-constexpr float THRESHOLD_ON = 15.0f;
-constexpr float THRESHOLD_OFF = 12.0f;
 constexpr uint32_t SENSOR_PERIOD_MS = 100;
 constexpr uint32_t TELEMETRY_PERIOD_MS = 500;
 constexpr uint32_t RETRY_PERIOD_MS = 5000;
@@ -46,11 +44,15 @@ struct Telemetry
     bool monitoringEnabled;
     bool modeLedOn;
     uint32_t lastCommandId;
+    AlarmSettings settings;
+    bool settingsSaveFailed;
 };
 
 QueueHandle_t telemetryQueue = nullptr;
 QueueHandle_t commandQueue = nullptr;
 MonitoringState monitoring;
+AlarmSettings alarmSettings;
+bool settingsSaveFailed = false;
 bool modeLedOn = false;
 char commandTopic[120];
 
@@ -163,12 +165,18 @@ bool readAcceleration(Acceleration &result)
     return true;
 }
 
+bool buzzerEnabled()
+{
+    return monitoring.enabled && alarmSettings.alertsEnabled;
+}
+
 void setBuzzer(uint32_t now)
 {
+    bool enabled = buzzerEnabled();
 #if BUZZER_PASSIVE
     static BuzzerAlert alert;
     static uint16_t previousFrequency = 0;
-    uint16_t frequency = alert.frequency(now, !monitoring.enabled || sensorOk, monitoring.enabled && alarmOn);
+    uint16_t frequency = alert.frequency(now, !enabled || sensorOk, enabled && alarmOn);
     if (frequency != previousFrequency)
     {
         ledcWriteTone(BUZZER_CHANNEL, frequency);
@@ -176,7 +184,7 @@ void setBuzzer(uint32_t now)
     }
 #else
     // Active buzzers contain an oscillator, so preserve their on/off behavior.
-    bool active = monitoring.enabled && (sensorOk ? alarmOn : ((now % 1000) < 170));
+    bool active = enabled && (sensorOk ? alarmOn : ((now % 1000) < 170));
     static bool previous = false;
     if (active != previous)
     {
@@ -210,15 +218,7 @@ void sampleSensor(uint32_t now)
     {
         filteredAngle = 0.75f * filteredAngle + 0.25f * rawAngle;
     }
-    float absAngle = fabsf(filteredAngle);
-    if (!alarmOn && absAngle >= THRESHOLD_ON)
-    {
-        alarmOn = true;
-    }
-    else if (alarmOn && absAngle <= THRESHOLD_OFF)
-    {
-        alarmOn = false;
-    }
+    alarmOn = alarmSettings.nextAlarm(alarmOn, fabsf(filteredAngle));
     setBuzzer(now);
 }
 
@@ -275,10 +275,30 @@ void queueTelemetry(uint32_t now)
     {
         Telemetry reading = {
             sensorOk, alarmOn, filteredAngle, sequenceNumber++, now,
-            monitoring.enabled, modeLedOn, monitoring.lastCommandId
+            monitoring.enabled, modeLedOn, monitoring.lastCommandId, alarmSettings, settingsSaveFailed
         };
         xQueueOverwrite(telemetryQueue, &reading);
     }
+}
+
+void applyAlarmSettings(const MonitoringCommand &command, uint32_t now)
+{
+    const AlarmSettings &next = command.settings;
+    const bool changed = next.thresholdOn != alarmSettings.thresholdOn ||
+        next.thresholdOff != alarmSettings.thresholdOff || next.alertsEnabled != alarmSettings.alertsEnabled;
+    settingsSaveFailed = changed && preferences.putBytes("alarm-v1", &next, sizeof(next)) != sizeof(next);
+    monitoring.lastCommandId = command.requestId;
+    if (!settingsSaveFailed)
+    {
+        alarmSettings = next;
+        alarmOn = monitoring.enabled && sensorOk && angleInitialized &&
+            alarmSettings.nextAlarm(alarmOn, fabsf(filteredAngle));
+        setBuzzer(now);
+    }
+    queueTelemetry(now);
+    Serial.printf("ALERT_SETTINGS requestId=%lu saved=%d alertsEnabled=%d on=%u off=%u\r\n",
+                  static_cast<unsigned long>(command.requestId), !settingsSaveFailed, alarmSettings.alertsEnabled,
+                  static_cast<unsigned>(alarmSettings.thresholdOn), static_cast<unsigned>(alarmSettings.thresholdOff));
 }
 
 void applyPendingControl(uint32_t now)
@@ -288,11 +308,20 @@ void applyPendingControl(uint32_t now)
     {
         return;
     }
+    if (command.updatesSettings)
+    {
+        if (monitoring.accepts(command, bootId))
+        {
+            applyAlarmSettings(command, now);
+        }
+        return;
+    }
     bool wasEnabled = monitoring.enabled;
     if (!monitoring.apply(command, bootId))
     {
         return;
     }
+    settingsSaveFailed = false;
     digitalWrite(MODE_LED_PIN, monitoring.enabled ? HIGH : LOW);
     modeLedOn = digitalRead(MODE_LED_PIN) == HIGH;
     if (wasEnabled != monitoring.enabled)
@@ -327,7 +356,7 @@ void receiveMqttCommand(char *topic, uint8_t *payload, unsigned int length)
 {
     MonitoringCommand command;
     if (strcmp(topic, commandTopic) == 0 &&
-        parseMonitoringCommand(payload, length, bootId, command))
+        parseControlCommand(payload, length, bootId, command))
     {
         // MQTT runs on its own task; GPIO, sensor and alarm state belong to loop().
         xQueueOverwrite(commandQueue, &command);
@@ -352,16 +381,22 @@ bool publishTelemetry(PubSubClient &mqtt, const Telemetry &reading)
     }
     snprintf(
         payload, sizeof(payload),
-        "{\"deviceId\":\"%s\",\"bootId\":%lu,\"seq\":%lu,\"sensorOk\":%s,\"alarmOn\":%s,\"angleDeg\":%s,\"thresholdOn\":15,\"thresholdOff\":12,\"monitoringEnabled\":%s,\"modeLedOn\":%s,\"lastCommandId\":%lu}",
+        "{\"deviceId\":\"%s\",\"bootId\":%lu,\"seq\":%lu,\"sensorOk\":%s,\"alarmOn\":%s,\"angleDeg\":%s,"
+        "\"thresholdOn\":%u,\"thresholdOff\":%u,\"monitoringEnabled\":%s,\"modeLedOn\":%s,\"lastCommandId\":%lu,"
+        "\"alertsEnabled\":%s,\"settingsSaveFailed\":%s}",
         DEVICE_ID,
         static_cast<unsigned long>(bootId),
         static_cast<unsigned long>(reading.seq),
         reading.sensorOk ? "true" : "false",
         reading.alarmOn ? "true" : "false",
         angle,
+        static_cast<unsigned>(reading.settings.thresholdOn),
+        static_cast<unsigned>(reading.settings.thresholdOff),
         reading.monitoringEnabled ? "true" : "false",
         reading.modeLedOn ? "true" : "false",
-        static_cast<unsigned long>(reading.lastCommandId)
+        static_cast<unsigned long>(reading.lastCommandId),
+        reading.settings.alertsEnabled ? "true" : "false",
+        reading.settingsSaveFailed ? "true" : "false"
     );
     return mqtt.publish("tilt-tray/telemetry", payload, false);
 }
@@ -560,6 +595,13 @@ void setup()
     Wire.setTimeOut(50);
 
     preferences.begin("tilt-tray", false);
+    AlarmSettings savedSettings;
+    if (preferences.getBytesLength("alarm-v1") == sizeof(savedSettings) &&
+        preferences.getBytes("alarm-v1", &savedSettings, sizeof(savedSettings)) == sizeof(savedSettings) &&
+        savedSettings.valid())
+    {
+        alarmSettings = savedSettings;
+    }
     // Versioned vector reference replaces the previous one-axis scalar offset.
     // Never interpret an old "zero" value as a three-axis calibration.
     if (preferences.getBytesLength("ref-v1") == sizeof(Acceleration))
@@ -646,7 +688,7 @@ void loop()
                       source, monitoring.enabled ? "on" : "paused", modeLedOn,
                       sensorOk, sensorOk && monitoring.enabled ? rawAngle : NAN,
                       sensorOk && monitoring.enabled ? filteredAngle : NAN, alarmOn,
-                      !monitoring.enabled ? "silent" : sensorOk ? (alarmOn ? "tilt" : "silent") : "fault-beep",
+                      !buzzerEnabled() ? "silent" : sensorOk ? (alarmOn ? "tilt" : "silent") : "fault-beep",
                       static_cast<unsigned long>(maxSampleGap), static_cast<unsigned long>(maxSampleWorkUs));
         maxSampleGap = 0;
         maxSampleWorkUs = 0;

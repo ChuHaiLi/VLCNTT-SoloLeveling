@@ -102,7 +102,7 @@ Các đường dẫn mã nguồn và cấu hình bên dưới tính từ `web/`.
 - Người dùng dự định **mua hộp có sẵn**, không có máy in 3D; chưa chọn hộp và linh kiện thật. CAD hiện là thiết kế dự kiến, mọi kích thước có thể thay đổi sau khi mua.
 - Đã chuyển từ công thức một trục `atan2(ax, az)` ban đầu sang đo tổng góc nghiêng **XYZ** so với vector mốc CAL. Không viết report như thể vẫn bỏ trục Y.
 - Hai luồng chính: MPU6050 → ESP32 → MQTT → Express → React; và React → Express → MQTT → ESP32 → LED/chế độ đo → telemetry xác nhận → React.
-- Web có điều khiển bắt đầu/tạm dừng đo; không còn là bản chỉ hiển thị ban đầu. Web không chỉnh ngưỡng trong phạm vi hiện tại.
+- Web điều khiển bắt đầu/tạm dừng đo. Sau phản hồi vấn đáp proposal, web có thể lưu hai ngưỡng và chọn Đo và cảnh báo hoặc Chỉ gửi góc. Xem `web/README.md` để biết giao thức và cách dùng.
 - Chưa có motor/servo, điều khiển tự cân bằng, tách gia tốc chuyển động hoặc đo tư thế xe chạy thực tế. Đây là hướng phát triển, không được trình bày là tính năng đã có.
 
 ## Firmware, cảm biến và âm thanh
@@ -124,7 +124,7 @@ Các đường dẫn mã nguồn và cấu hình bên dưới tính từ `web/`.
 - Với vector mốc đơn vị `r` và gia tốc `a`: `theta = atan2(|r × a|, r · a) * 180/pi`. Mặc định mốc +Z tương đương `atan2(sqrt(ax² + ay²), az)`.
 - Góc tổng 0–180°, không có dấu và không cho riêng pitch/roll hoặc hướng xe di chuyển.
 - Lọc EMA: 0,75 góc cũ + 0,25 góc mới; khởi tạo lại sau lần đầu/phục hồi/bắt đầu lại theo logic hiện có.
-- Bật cảnh báo khi góc đã lọc ≥15°; tắt khi ≤12°; giữ trạng thái ở khoảng giữa. Trên web phân biệt **Ngưỡng bật** và **Ngưỡng tắt**.
+- Khi bật cảnh báo, so sánh góc đã lọc với **Ngưỡng bật** (≥) và **Ngưỡng tắt** (≤), giữ trạng thái ở khoảng giữa. Mặc định 15°/12°. Web nhận hai số nguyên thỏa `0 ≤ ngưỡng tắt < ngưỡng bật ≤ 90`. ESP32 lưu hai ngưỡng và chế độ trong `alarm-v1`. Chỉ gửi góc vẫn đo và truyền telemetry, tắt cả còi nghiêng lẫn bíp lỗi. Web vẫn báo lỗi cảm biến.
 - Passive buzzer Dual-Tone: 1200 Hz/150 ms → 1800 Hz/150 ms → nghỉ 100 ms, lặp 400 ms bằng `millis()`/PWM. Khi trạng thái cảnh báo tắt, dừng ở lượt cập nhật kế tiếp, không chờ hết chu kỳ; vẫn có độ trễ do lấy mẫu/lọc trước khi trạng thái đổi.
 - Lỗi cảm biến: `sensorOk:false`, `angleDeg:null`, `alarmOn:false`; có tiếng bíp lỗi riêng 2000 Hz/170 ms mỗi giây khi đang đo. `alarmOn` chỉ là cảnh báo nghiêng, không đại diện mọi tiếng buzzer.
 - Tạm dừng đo: bỏ lấy mẫu, LED và mọi âm thanh tắt, góc null; telemetry heartbeat vẫn gửi. `sensorOk` lúc tạm dừng không phải kết quả một phép đọc cảm biến mới. Bắt đầu lại lấy mẫu mới và reset lọc; trạng thái tạm dừng không lưu qua reboot.

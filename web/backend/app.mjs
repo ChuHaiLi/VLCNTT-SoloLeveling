@@ -1,7 +1,7 @@
 import express from "express";
-import { calculateStatus, STALE_MS } from "./state.mjs";
+import { calculateStatus, STALE_MS, validAlertSettings } from "./state.mjs";
 
-export function createApp({ getState, setMonitoring })
+export function createApp({ getState, setMonitoring, setAlertSettings })
 {
     const app = express();
     app.disable("x-powered-by");
@@ -39,6 +39,25 @@ export function createApp({ getState, setMonitoring })
         try
         {
             response.json(await setMonitoring(body.enabled));
+        }
+        catch (error)
+        {
+            response.status(error.statusCode || 500).json({ error: error.message });
+        }
+    });
+
+    app.post("/api/alert-settings", express.json({ limit: "1kb" }), async (request, response) =>
+    {
+        const body = request.body;
+        if (!validAlertSettings(body) || Object.keys(body).length !== 3)
+        {
+            response.status(400).json({ error: "Chọn chế độ cảnh báo và nhập hai ngưỡng hợp lệ từ 0° đến 90°." });
+            return;
+        }
+        response.set("Cache-Control", "no-store");
+        try
+        {
+            response.json(await setAlertSettings(body));
         }
         catch (error)
         {

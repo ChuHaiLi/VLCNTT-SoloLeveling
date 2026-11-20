@@ -28,7 +28,7 @@ const control = createMonitoringController({
     getState,
     commandPrefix: process.env.MQTT_COMMAND_TOPIC || "tilt-tray/command",
 });
-const app = createApp({ getState, setMonitoring: control.setMonitoring });
+const app = createApp({ getState, setMonitoring: control.setMonitoring, setAlertSettings: control.setAlertSettings });
 client.on("connect", () =>
 {
     client.subscribe(topic, { qos: 0 }, (error) =>

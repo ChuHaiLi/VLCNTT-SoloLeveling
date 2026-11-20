@@ -104,3 +104,38 @@ test("synchronous publish failure releases the pending command immediately", asy
     await assert.rejects(control.setMonitoring(false), { statusCode: 503 });
     await assert.rejects(control.setMonitoring(true), { statusCode: 503 });
 });
+
+test("alert settings require new firmware, share the command lock and confirm exact values", async () =>
+{
+    const { control, state, published } = fixture();
+    const settings = { alertsEnabled: false, thresholdOn: 22, thresholdOff: 18 };
+    assert.throws(() => control.setAlertSettings({ ...settings, thresholdOn: 18 }), { statusCode: 400 });
+    assert.throws(() => control.setAlertSettings(settings), { statusCode: 409 });
+    assert.equal(published.length, 0);
+    state.latest.alertsEnabled = true;
+    let confirmed = false;
+    const result = control.setAlertSettings(settings).then((response) =>
+    {
+        confirmed = true;
+        return response;
+    });
+    assert.throws(() => control.setMonitoring(false), { statusCode: 409 });
+    const requestId = Number(/^SET_ALERT_SETTINGS 123 (\d+) 0 22 18$/.exec(published[0].payload)?.[1]);
+    assert.ok(requestId > 0);
+    control.observe({ ...state.latest, ...settings, thresholdOff: 17, lastCommandId: requestId });
+    await Promise.resolve();
+    assert.equal(confirmed, false);
+    control.observe({ ...state.latest, ...settings, lastCommandId: requestId });
+    assert.equal((await result).thresholdOff, 18);
+});
+
+test("a storage failure rejects the settings request and releases the command lock", async () =>
+{
+    const { control, state, published } = fixture();
+    state.latest.alertsEnabled = true;
+    const request = control.setAlertSettings({ alertsEnabled: false, thresholdOn: 22, thresholdOff: 18 });
+    const rejected = assert.rejects(request, { statusCode: 500 });
+    const requestId = Number(published[0].payload.split(" ")[2]);
+    control.observe({ ...state.latest, lastCommandId: requestId, settingsSaveFailed: true });
+    await rejected;
+});

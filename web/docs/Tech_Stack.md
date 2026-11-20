@@ -9,10 +9,10 @@ Phạm vi hiện tại là đo nghiêng tĩnh hoặc nghiêng chậm. Phần m�
 | Thành phần | Vai trò | Cấu hình trong dự án | File liên quan |
 | --- | --- | --- | --- |
 | ESP32 DevKit | Đọc cảm biến, tính góc, điều khiển còi và LED, trao đổi MQTT | Board `esp32dev` | [platformio.ini:5-10](../platformio.ini#L5-L10) |
-| MPU6050 | Cung cấp gia tốc X, Y, Z | I²C `0x68`, thang ±2 g, 16.384 LSB/g | [tilt_tray.cpp:20-29](../firmware/tilt_tray.cpp#L20-L29), [109-123](../firmware/tilt_tray.cpp#L109-L123) |
-| Bus I²C | Nối ESP32 với MPU6050 | SDA GPIO21, SCL GPIO22, clock 100 kHz | [tilt_tray.cpp:558-560](../firmware/tilt_tray.cpp#L558-L560) |
-| Piezo thụ động trong Wokwi | Phát hai cao độ cảnh báo và bíp lỗi | GPIO25, PWM LEDC channel 0 | [tilt_tray.cpp:166-187](../firmware/tilt_tray.cpp#L166-L187), [551-557](../firmware/tilt_tray.cpp#L551-L557) |
-| LED xanh và điện trở 330 Ω | Báo chế độ giám sát | GPIO26, LED sáng khi giám sát và tắt khi tạm dừng | [diagram.json:23-25](../diagram.json#L23-L25), [tilt_tray.cpp:296-297](../firmware/tilt_tray.cpp#L296-L297) |
+| MPU6050 | Cung cấp gia tốc X, Y, Z | I²C `0x68`, thang ±2 g, 16.384 LSB/g | [tilt_tray.cpp:20-29](../firmware/tilt_tray.cpp#L20-L29), [111-125](../firmware/tilt_tray.cpp#L111-L125) |
+| Bus I²C | Nối ESP32 với MPU6050 | SDA GPIO21, SCL GPIO22, clock 100 kHz | [tilt_tray.cpp:593-595](../firmware/tilt_tray.cpp#L593-L595) |
+| Piezo thụ động trong Wokwi | Phát hai cao độ cảnh báo và bíp lỗi | GPIO25, PWM LEDC channel 0 | [tilt_tray.cpp:173-195](../firmware/tilt_tray.cpp#L173-L195), [586-592](../firmware/tilt_tray.cpp#L586-L592) |
+| LED xanh và điện trở 330 Ω | Báo chế độ giám sát | GPIO26, LED sáng khi giám sát và tắt khi tạm dừng | [diagram.json:23-25](../diagram.json#L23-L25), [tilt_tray.cpp:325-326](../firmware/tilt_tray.cpp#L325-L326) |
 | Wokwi for VS Code | Chạy firmware ESP32 trong mô phỏng | Nạp `.bin` và `.elf` do PlatformIO build | [wokwi.toml:1-4](../wokwi.toml#L1-L4) |
 | USB và Serial | Cấp nguồn, nạp board thật và nhập lệnh kiểm tra | Serial 115200 baud. Trong Wokwi dùng UART mô phỏng | [platformio.ini:9](../platformio.ini#L9), [diagram.json](../diagram.json) |
 
@@ -24,16 +24,16 @@ Loại buzzer thật chưa chốt. Build `hardware` mặc định dùng nhánh a
 
 | Công nghệ hoặc thư viện | Cách dùng | Vị trí |
 | --- | --- | --- |
-| C++ với Arduino framework | Viết `setup()`, `loop()` và các lớp xử lý | [platformio.ini:8](../platformio.ini#L8), [tilt_tray.cpp:544-655](../firmware/tilt_tray.cpp#L544-L655) |
+| C++ với Arduino framework | Viết `setup()`, `loop()` và các lớp xử lý | [platformio.ini:8](../platformio.ini#L8), [tilt_tray.cpp:579-697](../firmware/tilt_tray.cpp#L579-L697) |
 | PlatformIO | Quản lý board, framework, thư viện và hai cấu hình build | [platformio.ini](../platformio.ini) |
 | Platform `espressif32@6.12.0` | Phiên bản platform được khóa trong cấu hình | [platformio.ini:6](../platformio.ini#L6) |
-| PubSubClient `2.8` | MQTT client chạy trên ESP32 | [platformio.ini:10](../platformio.ini#L10), [tilt_tray.cpp:369-439](../firmware/tilt_tray.cpp#L369-L439) |
-| `Wire.h` | Đọc và ghi thanh ghi MPU6050 qua I²C | [tilt_tray.cpp:85-164](../firmware/tilt_tray.cpp#L85-L164) |
-| `WiFi.h` và `WiFiClient` | Kết nối Wi-Fi và cung cấp TCP cho MQTT | [tilt_tray.cpp:369-414](../firmware/tilt_tray.cpp#L369-L414) |
-| `Preferences.h` | Lưu vector CAL bằng khóa `ref-v1`, đọc lại khi khởi động | [tilt_tray.cpp:260-269](../firmware/tilt_tray.cpp#L260-L269), [562-577](../firmware/tilt_tray.cpp#L562-L577) |
-| FreeRTOS | Task mạng riêng, queue trao đổi với vòng xử lý cảm biến | [tilt_tray.cpp:272-339](../firmware/tilt_tray.cpp#L272-L339), [585-590](../firmware/tilt_tray.cpp#L585-L590) |
+| PubSubClient `2.8` | MQTT client chạy trên ESP32 | [platformio.ini:10](../platformio.ini#L10), [tilt_tray.cpp:404-474](../firmware/tilt_tray.cpp#L404-L474) |
+| `Wire.h` | Đọc và ghi thanh ghi MPU6050 qua I²C | [tilt_tray.cpp:87-166](../firmware/tilt_tray.cpp#L87-L166) |
+| `WiFi.h` và `WiFiClient` | Kết nối Wi-Fi và cung cấp TCP cho MQTT | [tilt_tray.cpp:404-449](../firmware/tilt_tray.cpp#L404-L449) |
+| `Preferences.h` | Lưu vector CAL bằng khóa `ref-v1`, đọc lại khi khởi động | [tilt_tray.cpp:260-269](../firmware/tilt_tray.cpp#L260-L269), [597-619](../firmware/tilt_tray.cpp#L597-L619) |
+| FreeRTOS | Task mạng riêng, queue trao đổi với vòng xử lý cảm biến | [tilt_tray.cpp:272-368](../firmware/tilt_tray.cpp#L272-L368), [627-632](../firmware/tilt_tray.cpp#L627-L632) |
 | `<math.h>` | `atan2f`, `sqrtf`, `isfinite`, `fabsf` | [static_tilt.h:3-61](../firmware/static_tilt.h#L3-L61) |
-| LEDC PWM và `millis()` | Chọn tần số còi theo thời gian, không chờ hết một âm mới xử lý tiếp | [buzzer_alert.h:9-47](../firmware/buzzer_alert.h#L9-L47), [tilt_tray.cpp:166-187](../firmware/tilt_tray.cpp#L166-L187) |
+| LEDC PWM và `millis()` | Chọn tần số còi theo thời gian, không chờ hết một âm mới xử lý tiếp | [buzzer_alert.h:9-47](../firmware/buzzer_alert.h#L9-L47), [tilt_tray.cpp:173-195](../firmware/tilt_tray.cpp#L173-L195) |
 
 `atan2f` là hàm toán học được thư viện toán của toolchain cung cấp qua `<math.h>`. Dự án tự viết cách tính tích có hướng, tích vô hướng và chuẩn hóa vector, rồi gọi hàm này để nhận góc theo radian. Hệ số `57.2957795131f` đổi radian sang độ. Hàm được gọi tại [static_tilt.h:51](../firmware/static_tilt.h#L51).
 
@@ -73,8 +73,9 @@ Backend giữ một bản tin hợp lệ mới nhất trong RAM. Chưa có datab
 | HTTP GET | `/api/status` | Web lấy số đo và trạng thái |
 | HTTP GET | `/api/health` | Kiểm tra backend và trạng thái kết nối broker |
 | HTTP POST | `/api/monitoring` | Body chỉ gồm `enabled: true` hoặc `enabled: false` |
+| HTTP POST | `/api/alert-settings` | Gửi chế độ cảnh báo và hai ngưỡng. ESP32 lưu NVS trước khi xác nhận |
 
-API ở [app.mjs:9-47](../backend/app.mjs#L9-L47). Telemetry được tạo ở [tilt_tray.cpp:341-367](../firmware/tilt_tray.cpp#L341-L367), lệnh được tạo ở [control.mjs:84-96](../backend/control.mjs#L84-L96).
+API ở [app.mjs:9-47](../backend/app.mjs#L9-L47). Telemetry được tạo ở [tilt_tray.cpp:370-402](../firmware/tilt_tray.cpp#L370-L402), lệnh được tạo ở [control.mjs:112-124](../backend/control.mjs#L112-L124).
 
 MQTT dùng QoS 0. Lệnh không retain, backend không xếp hàng QoS 0 khi mất kết nối. Xác nhận điều khiển nằm trong telemetry sau khi ESP32 áp dụng chế độ và GPIO, không có topic ACK riêng.
 
@@ -88,9 +89,9 @@ MQTT dùng QoS 0. Lệnh không retain, backend không xếp hàng QoS 0 khi m�
 | JSX và CSS | Không có phiên bản riêng | Không áp dụng | Khai báo giao diện và định dạng |
 | Fetch API | API trình duyệt | Không áp dụng | HTTP GET trạng thái và POST điều khiển |
 
-Nguồn: [frontend/package.json](../frontend/package.json), [React](../frontend/package-lock.json#L975-L978), [React DOM](../frontend/package-lock.json#L985-L988), [Vite](../frontend/package-lock.json#L1076-L1079), [main.jsx:1-3](../frontend/src/main.jsx#L1-L3), [style.css:1-15](../frontend/src/style.css#L1-L15).
+Nguồn: [frontend/package.json](../frontend/package.json), [React](../frontend/package-lock.json#L975-L978), [React DOM](../frontend/package-lock.json#L985-L988), [Vite](../frontend/package-lock.json#L1076-L1079), [main.jsx:1-3](../frontend/src/main.jsx#L1-L3), [style.css:1-27](../frontend/src/style.css#L1-L27).
 
-Web lấy trạng thái bằng polling khoảng mỗi giây, không dùng WebSocket. Yêu cầu lấy trạng thái có timeout 2,5 giây. Yêu cầu đổi chế độ có timeout 6,5 giây. Xem [main.jsx:22-71](../frontend/src/main.jsx#L22-L71) và [85-138](../frontend/src/main.jsx#L85-L138).
+Web lấy trạng thái bằng polling khoảng mỗi giây, không dùng WebSocket. Yêu cầu lấy trạng thái có timeout 2,5 giây. Yêu cầu đổi chế độ có timeout 6,5 giây. Xem [main.jsx:114-167](../frontend/src/main.jsx#L114-L167) và [183-229](../frontend/src/main.jsx#L183-L229).
 
 Vite proxy `/api` đến `http://127.0.0.1:3000` trong môi trường phát triển. Đây là cấu hình dev server, không phải cấu hình triển khai production. Xem [vite.config.js:3-9](../frontend/vite.config.js#L3-L9).
 
@@ -102,11 +103,11 @@ Vite proxy `/api` đến `http://127.0.0.1:3000` trong môi trường phát tri�
 | Broker nhìn từ Wokwi | `host.wokwi.internal:1883` | [config.h:10-11](../firmware/config.h#L10-L11) |
 | Backend | `http://127.0.0.1:3000` mặc định | [index.mjs:6](../backend/index.mjs#L6), [82-86](../backend/index.mjs#L82-L86) |
 | Web dev | Mặc định Vite thường dùng `http://127.0.0.1:5173`, có thể đổi cổng khi cổng bận | [frontend/package.json](../frontend/package.json), địa chỉ thực tế do Vite in khi chạy |
-| Lấy mẫu cảm biến | Khoảng 100 ms | [tilt_tray.cpp:33](../firmware/tilt_tray.cpp#L33) |
-| Chuẩn bị telemetry | Khoảng 500 ms, có thể thêm bản tin sau lệnh | [tilt_tray.cpp:34](../firmware/tilt_tray.cpp#L34), [320-321](../firmware/tilt_tray.cpp#L320-L321) |
-| Thử nối lại Wi-Fi/MQTT | Mốc thử lại 5 giây | [tilt_tray.cpp:35](../firmware/tilt_tray.cpp#L35), [391-421](../firmware/tilt_tray.cpp#L391-L421) |
-| Dữ liệu cũ | Hơn 5 giây không có telemetry hợp lệ | [state.mjs:1](../backend/state.mjs#L1), [51-65](../backend/state.mjs#L51-L65) |
-| Chờ xác nhận tại backend | Khoảng 4 giây | [control.mjs:9](../backend/control.mjs#L9), [90-93](../backend/control.mjs#L90-L93) |
+| Lấy mẫu cảm biến | Khoảng 100 ms | [tilt_tray.cpp:31](../firmware/tilt_tray.cpp#L31) |
+| Chuẩn bị telemetry | Khoảng 500 ms, có thể thêm bản tin sau lệnh | [tilt_tray.cpp:32](../firmware/tilt_tray.cpp#L32), [349-350](../firmware/tilt_tray.cpp#L349-L350) |
+| Thử nối lại Wi-Fi/MQTT | Mốc thử lại 5 giây | [tilt_tray.cpp:33](../firmware/tilt_tray.cpp#L33), [426-456](../firmware/tilt_tray.cpp#L426-L456) |
+| Dữ liệu cũ | Hơn 5 giây không có telemetry hợp lệ | [state.mjs:1](../backend/state.mjs#L1), [71-85](../backend/state.mjs#L71-L85) |
+| Chờ xác nhận tại backend | Khoảng 4 giây | [control.mjs:9](../backend/control.mjs#L9), [118-121](../backend/control.mjs#L118-L121) |
 
 Các chu kỳ trên là tham số phần mềm. Chưa có phép đo độ trễ đầu cuối trên phần cứng thật.
 
@@ -118,7 +119,7 @@ Broker demo chỉ lắng nghe localhost, cho phép anonymous và tắt persisten
 | --- | --- | --- |
 | `node:test`, `node:assert/strict` | Validator, trạng thái, API và điều khiển | [state.test.mjs](../backend/state.test.mjs), [control.test.mjs](../backend/control.test.mjs), [app.test.mjs](../backend/app.test.mjs) |
 | C++ assertions, biên dịch bằng g++ | Góc XYZ, vector CAL, dữ liệu sai, chu kỳ còi và parser điều khiển | [static_tilt.test.cpp](../tests/static_tilt.test.cpp), [buzzer_alert.test.cpp](../tests/buzzer_alert.test.cpp), [monitoring_control.test.cpp](../tests/monitoring_control.test.cpp) |
-| Mosquitto/API integration | Điều khiển, heartbeat, thiếu ACK, mất và phục hồi broker | [check-control.mjs:118-186](../backend/check-control.mjs#L118-L186) |
+| Mosquitto/API integration | Điều khiển, heartbeat, thiếu ACK, mất và phục hồi broker | [check-control.mjs:121-222](../backend/check-control.mjs#L121-L222) |
 | Publisher giả lập Node | Cấp góc mẫu để thử đường MQTT đến backend/web, chưa hỗ trợ điều khiển đầy đủ | [simulate.mjs:21-48](../backend/simulate.mjs#L21-L48) |
 | Demo HTML độc lập | Minh họa logic bằng biến trong trình duyệt, không nối ESP32/MQTT | [demo-gia-lap.html:87-164](../demo-gia-lap.html#L87-L164) |
 
